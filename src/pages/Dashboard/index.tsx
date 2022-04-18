@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
 import api from '../../services/api';
 
@@ -21,7 +21,16 @@ const Dashboard: React.FC = () => {
   /** Controla o estado do erro ao tentar buscar um repositório */
   const [_inputError, _setInputError] = useState('');
   /** Controla o estado da lista de repositórios */
-  const [_repositories, _setRepositories] = useState<Repository[]>([]);
+  const [_repositories, _setRepositories] = useState<Repository[]>(() => {
+    const storagedRepositories = localStorage.getItem(
+      '@github-explorer:repositories',
+    );
+
+    if (storagedRepositories) {
+      return JSON.parse(storagedRepositories);
+    }
+    return [];
+  });
 
   /**
    * Evento disparado no submit do form
@@ -45,6 +54,13 @@ const Dashboard: React.FC = () => {
       _setInputError('Erro na busca por este repositório.');
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem(
+      '@github-explorer:repositories',
+      JSON.stringify(_repositories),
+    );
+  }, [_repositories]);
 
   return (
     <>
